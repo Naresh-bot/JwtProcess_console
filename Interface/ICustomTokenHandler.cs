@@ -1,0 +1,9 @@
+namespace JWTProcessConsole
+{
+    interface ICustomTokenHandler
+    {
+
+    }
+    
+}
+

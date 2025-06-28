@@ -1,0 +1,5 @@
+inmemory db//
+userid validtion replace//
+token generate, validtion
+appsettings register//
+hostprovider/ builder ?
