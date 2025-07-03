@@ -1,10 +1,10 @@
 namespace JWTProcessConsole
 {
-    interface ICustomConsoleHandler
+    interface IConsoleOptionsHandler
     {
         public void GetPrimaryInput();
         public void HandlePrimaryOptions(int currentOption);
     }
-    
+
 }
 

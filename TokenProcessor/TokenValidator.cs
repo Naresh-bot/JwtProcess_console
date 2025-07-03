@@ -1,7 +1,7 @@
-
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using JWTProcessConsole.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -17,78 +17,47 @@ namespace JWTProcessConsole
             _consoleWriter = consoleWriter;
             _configuration = configuration;
         }
+
         public void ValidateToken(string token, int keytypeId)
         {
             string customKey;
 
-            Console.WriteLine("Is the user Anonymous? (Yes/No)");
-            var input = Console.ReadLine();
-            string[] affirm = ["yes", "y"];
-
-            bool isAnonymousUser = affirm.Contains(input.ToLower());
-
             if (keytypeId == 2)
             {
-                customKey = _consoleWriter.GetSecretKey();
+                customKey = _consoleWriter.GetUserInput(Message.GetSecretKey)!;
             }
             else
             {
-                customKey = _configuration["Jwt:SecretKey"];
-            }
-
-            var userContext = _consoleWriter.GetAnonymousUserDetails(true);
-
-
+                customKey = _configuration["Jwt:SecretKey"]!;
+            } 
+            
             var handler = new JwtSecurityTokenHandler();
 
             var validationParams = new TokenValidationParameters()
             {
-                ValidateIssuer = true,
-                ValidateAudience = true,
+                ValidateIssuer = false,
+                ValidateAudience = false,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(customKey))
 
             };
 
-
-            if (isAnonymousUser)
-            {
-                validationParams.ValidIssuer = userContext.jwtdetails.Issuer;
-                validationParams.ValidAudience = userContext.jwtdetails.Audience;
-            }
-            else
-            {
-                validationParams.ValidIssuer = _configuration["Jwt:Issuer"];
-                validationParams.ValidAudience = _configuration["Jwt:Audience"];
-            }
-
-
-
             try
-            {
-                // Validate token
+            { 
                 ClaimsPrincipal principal = handler.ValidateToken(token, validationParams, out SecurityToken validatedToken);
-
-                Console.WriteLine("Token is valid.");
-
-                // Cast to JwtSecurityToken to access claims like expiration
-                var jwtToken = validatedToken as JwtSecurityToken;
-                //var jwtToken = (JwtSecurityToken)validatedToken;
-
-                if (jwtToken != null)
-                {
-                    DateTime expiry = jwtToken.ValidTo; // UTC time 
-                    Console.WriteLine($"Token expires at (Local Time): {expiry.ToLocalTime()}");
-                }
+ 
+                var jwtToken = validatedToken as JwtSecurityToken; 
+                _consoleWriter.PrintTokenValidationResult(jwtToken!);
             }
-            catch (SecurityTokenExpiredException)
+            catch (SecurityTokenExpiredException ex)
             {
-                Console.WriteLine("Token has expired.");
+                _consoleWriter.PrintMessage(Message.ErrorMessage(ex.Message));
             }
             catch (SecurityTokenException ex)
             {
-                Console.WriteLine($"Token is invalid: {ex.Message}");
+                _consoleWriter.PrintMessage(Message.ErrorMessage(ex.Message)); 
+
             }
 
 

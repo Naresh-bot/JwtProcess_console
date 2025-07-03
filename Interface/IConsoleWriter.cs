@@ -1,27 +1,23 @@
+using System.IdentityModel.Tokens.Jwt;
+
 namespace JWTProcessConsole
 {
-    interface IConsoleWriter
-    {
-        public void PrintInvalidInput();
-        // public void PrintTokenGenSuccess();
-
-        // public int InvalidInput();
-        public void StopApp();
-
-        public string GetTokenInput();
-        public string GetContinueInput();
-        public string GetUserId();
-        public void ClearConsole();
-
-        public void InvalidUser();
+    public interface IConsoleWriter
+    { 
+        public void StopApp();  
+        public Users GetUserCredentials();
+        public void ClearConsole(); 
         public void TokenHandlingOptions();
         public void UserInfoOptions();
         public void SecurityKeyOptions();
-        public string? GetUserInput();
-        public string? GetSecretKey();
-        public Users RegisterUser();
-        public void RegistrationSuccess(int userId);
-        public UserContext GetAnonymousUserDetails(bool istokenValidation);
+        public string? GetUserInput(string message); 
+        public Users RegisterUser(); 
+        public UserContext GetAnonymousUserDetails(); 
+        public void PrintParsedToken(JwtSecurityToken token);
+        public void PrintTokenValidationResult(JwtSecurityToken jwtToken);
+        public void PrintMessage(string message);
+        public void PrintMessageInLine(string message);
+
     }
-    
+
 }
