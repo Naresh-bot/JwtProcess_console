@@ -10,14 +10,12 @@ namespace JWTProcessConsole
     class TokenGenerator : ITokenGenerator
     {
         public readonly IConfiguration _configuration;
-        public readonly IConsoleWriter _consoleWriter;
-        public TokenGenerator(IConfiguration configuration, IConsoleWriter consoleWriter)
+        public TokenGenerator(IConfiguration configuration)
         {
-            _consoleWriter = consoleWriter;
             _configuration = configuration;
         }
 
-        public void GenerateToken(UserContext userContext)
+        public string GenerateToken(UserContext userContext)
         {
             string keyString = string.Empty;
             List<Claim> claims = new();
@@ -68,8 +66,8 @@ namespace JWTProcessConsole
             }
 
             var generatedToken = new JwtSecurityTokenHandler().WriteToken(token).ToString();
+            return generatedToken;
 
-            _consoleWriter.PrintMessage(Message.GeneratedToken(generatedToken));
         }
     }
 }

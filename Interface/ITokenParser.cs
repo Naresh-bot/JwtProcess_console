@@ -1,8 +1,10 @@
+using JWTProcessConsole.Models;
+
 namespace JWTProcessConsole
 {
     interface ITokenParser
     { 
-        public void ParseToken(string token);
+        public TokenWrapper ParseToken(string token);
 
     }
     

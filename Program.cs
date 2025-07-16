@@ -30,25 +30,8 @@ namespace JWTProcessConsole
            .AddSingleton<IUserHandler, UserHandler>()
            .AddSingleton<IConfiguration>(configuration)
            .AddSingleton<SeedingInMemoryDB>()
-           .AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("TestDB"));
-
-
-            services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
-                    {
-                        options.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            ValidateIssuer = true,
-                            ValidateAudience = true,
-                            ValidateLifetime = true,
-                            ValidateIssuerSigningKey = true,
-                            ValidIssuer = configuration["Jwt:Issuer"],
-                            ValidAudience = configuration["Jwt:Audience"],
-                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"]!))
-                        };
-                    });
-
+           .AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("TestDB")); 
+           
             var serviceProvider = services.BuildServiceProvider();
             var seedClass = serviceProvider.GetRequiredService<SeedingInMemoryDB>();
             seedClass.Seed();

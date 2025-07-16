@@ -1,8 +1,9 @@
+using JWTProcessConsole.Models;
 
 namespace JWTProcessConsole
 {
     interface ITokenValidator
     {
-        public void ValidateToken(string token,int keytypeId);
+        public TokenWrapper ValidateToken(string token,string customKey);
     }
 }           

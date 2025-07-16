@@ -2,7 +2,7 @@ namespace JWTProcessConsole
 {
     interface ITokenGenerator
     {
-        public void GenerateToken(UserContext userContext); 
+        public string GenerateToken(UserContext userContext); 
     }
     
 }

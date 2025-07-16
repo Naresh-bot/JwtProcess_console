@@ -8,26 +8,26 @@ namespace JWTProcessConsole
 {
     class TokenParser : ITokenParser
     {
-        public readonly IConsoleWriter _consoleWriter;
         public readonly IConfiguration _configuration;
-        public TokenParser(IConsoleWriter consoleWriter, IConfiguration configuration)
+        public TokenParser(IConfiguration configuration)
         {
-            _consoleWriter = consoleWriter;
             _configuration = configuration;
         }
-        public void ParseToken(string jwtToken)
+        public TokenWrapper ParseToken(string jwtToken)
         {
+            TokenWrapper tokenWrapper = new TokenWrapper();
             try
             {
                 var handler = new JwtSecurityTokenHandler();
-                var jwtSecurityToken = handler.ReadJwtToken(jwtToken); 
-                _consoleWriter.PrintParsedToken(jwtSecurityToken);
-               
+                var jwtSecurityToken = handler.ReadJwtToken(jwtToken);
+                tokenWrapper.JwtToken = jwtSecurityToken;
+
             }
             catch (Exception ex)
             {
-                _consoleWriter.PrintMessage(Message.ErrorMessage(ex.Message));
+                tokenWrapper.ErrorMessage = ex.Message; 
             }
+            return tokenWrapper;
         }
     }
 }

@@ -41,94 +41,117 @@ namespace JWTProcessConsole
 
         }
 
+
         public void HandlePrimaryOptions(int currentOption)
         {
-            string token;
-            string userInput;
-            int userOption;
             switch (currentOption)
             {
                 case 1:
-                    //token generation
-                    do
-                    {
-                        _consoleWriter.UserInfoOptions();
-                        if (retry)
-                            _consoleWriter.PrintMessage(Message.InvalidUser(trial));
-                        userInput = _consoleWriter.GetUserInput(Message.EnterOption)!;
-                        userOption = ValidateCurrentOption(3, userInput);
-                    } while (retry);
-                    HandleUserOptions(userOption);
+                    HandleTokenGeneration();
                     break;
                 case 2:
-                    //call validate token
-                    token = _consoleWriter.GetUserInput(Message.GetTokenInput)!;
-                    do
-                    {
-                        _consoleWriter.SecurityKeyOptions();
-                        if (retry)
-                            _consoleWriter.PrintMessage(Message.PrintInvalidInput(trial));
-
-                        userInput = _consoleWriter.GetUserInput(Message.EnterOption)!;
-                        userOption = ValidateCurrentOption(2, userInput);
-                    } while (retry);
-                    _tokenHandler.ValidateToken(token, userOption);
-                    GetContinueInput();
-
+                    HandleTokenValidation();
                     break;
                 case 3:
-                    //read jwt
-                    token = _consoleWriter.GetUserInput(Message.GetTokenInput)!;
-                    _tokenHandler.ParseToken(token);
-                    GetContinueInput();
-                    break;
-
+                    HandleTokenParsing();
+                    break; 
             }
         }
 
-        public void HandleUserOptions(int option)
+        private void HandleTokenGeneration()
         {
-            Users users = new();
-            UserContext userContext = new();
+            string userInput;
+            int userOption;
+            //token generation
+            do
+            {
+                _consoleWriter.UserInfoOptions();
+                if (retry)
+                    _consoleWriter.PrintMessage(Message.InvalidUser(trial));
+                userInput = _consoleWriter.GetUserInput(Message.EnterOption)!;
+                userOption = ValidateCurrentOption(3, userInput);
+            } while (retry);
+            HandleUserOptions(userOption);
+        }
+
+        private void HandleTokenValidation()
+        {
+            int userOption;
+            string token = _consoleWriter.GetUserInput(Message.GetTokenInput)!;
+            do
+            {
+                _consoleWriter.SecurityKeyOptions();
+                if (retry)
+                    _consoleWriter.PrintMessage(Message.PrintInvalidInput(trial));
+
+                string userInput = _consoleWriter.GetUserInput(Message.EnterOption)!;
+                userOption = ValidateCurrentOption(2, userInput);
+            } while (retry);
+            _tokenHandler.ValidateToken(token, userOption);
+            GetContinueInput();
+        }
+        private void HandleTokenParsing()
+        {
+            string token = _consoleWriter.GetUserInput(Message.GetTokenInput)!;
+            _tokenHandler.ParseToken(token);
+            GetContinueInput();
+        }
+        private void HandleUserOptions(int option)
+        {
             switch (option)
             {
                 case 1:
-                    //existing user
-                    do
-                    {
-                        _consoleWriter.UserInfoOptions();
-                        if (retry)
-                            _consoleWriter.PrintMessage(Message.PrintInvalidInput(trial));
-
-                        var Input = _consoleWriter.GetUserCredentials();
-                        users = _userHandler.ValidateUser(Input);
-                        retry = users.UserId == 0 ? true : false;  
-                    } while (retry);
-                    userContext.users = users;
-                    _tokenHandler.GenerateToken(userContext);
-                    GetContinueInput();
+                    HandleExistingUser();
                     break;
 
                 case 2:
-                    //register user
-                    users = _consoleWriter.RegisterUser();
-                    int userId = _userHandler.RegisterUser(users);
-                    _consoleWriter.PrintMessage(Message.RegistrationSuccess(userId));
-                    GetContinueInput();
+                    HandleRegisterUser();
                     break;
 
                 case 3:
-                    //anonymous user
-                    userContext = _consoleWriter.GetAnonymousUserDetails();
-                    _tokenHandler.GenerateToken(userContext);
-                    GetContinueInput();
+                    HandleAnonymousUser();
                     break;
             }
         }
 
+        private void HandleExistingUser()
+        {
+            Users users = new();
+            UserContext userContext = new();
 
+            do
+            {
+                _consoleWriter.UserInfoOptions();
+                if (retry)
+                    _consoleWriter.PrintMessage(Message.PrintInvalidInput(trial));
 
-        public void GetContinueInput()
+                var Input = _consoleWriter.GetUserCredentials();
+                users = _userHandler.ValidateUser(Input);
+                retry = users.UserId == 0 ? true : false;
+            } while (retry);
+            userContext.users = users;
+            _tokenHandler.GenerateToken(userContext);
+            GetContinueInput();
+        }
+
+        private void HandleRegisterUser()
+        {
+            Users users = new();
+            users = _consoleWriter.RegisterUser();
+            int userId = _userHandler.RegisterUser(users);
+            _consoleWriter.PrintMessage(Message.RegistrationSuccess(userId));
+            GetContinueInput();
+        }
+
+        private void HandleAnonymousUser()
+        {
+            UserContext userContext = new();
+            userContext = _consoleWriter.GetAnonymousUserDetails();
+            _tokenHandler.GenerateToken(userContext);
+            GetContinueInput();
+        }
+
+        private void GetContinueInput()
         {
             var input = _consoleWriter.GetUserInput(Message.GetContinueInput);
             string[] affirm = ["yes", "y"];
@@ -142,7 +165,7 @@ namespace JWTProcessConsole
             }
         }
 
-        public int ValidateCurrentOption(int maxLimit, string? input)
+        private int ValidateCurrentOption(int maxLimit, string? input)
         {
             int trial = 3;
             int option = 0;
@@ -168,4 +191,5 @@ namespace JWTProcessConsole
 
         }
     }
+
 }

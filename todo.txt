@@ -1,5 +1,6 @@
-inmemory db//
-userid validtion replace//
-token generate, validtion
-appsettings register//
-hostprovider/ builder ?
+cw - t
+seed, 
+msg -- const,
+methods - switch,
+models - users,
+prog.cs - auth,

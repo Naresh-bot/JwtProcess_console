@@ -9,29 +9,16 @@ namespace JWTProcessConsole
 {
     class TokenValidator : ITokenValidator
     {
-
-        public readonly IConsoleWriter _consoleWriter;
         public readonly IConfiguration _configuration;
-        public TokenValidator(IConsoleWriter consoleWriter, IConfiguration configuration)
+        public TokenValidator(IConfiguration configuration)
         {
-            _consoleWriter = consoleWriter;
             _configuration = configuration;
         }
 
-        public void ValidateToken(string token, int keytypeId)
-        {
-            string customKey;
-
-            if (keytypeId == 2)
-            {
-                customKey = _consoleWriter.GetUserInput(Message.GetSecretKey)!;
-            }
-            else
-            {
-                customKey = _configuration["Jwt:SecretKey"]!;
-            } 
-            
+        public TokenWrapper ValidateToken(string token, string customKey)
+        { 
             var handler = new JwtSecurityTokenHandler();
+            TokenWrapper tokenWrapper = new TokenWrapper();
 
             var validationParams = new TokenValidationParameters()
             {
@@ -44,22 +31,21 @@ namespace JWTProcessConsole
             };
 
             try
-            { 
+            {
                 ClaimsPrincipal principal = handler.ValidateToken(token, validationParams, out SecurityToken validatedToken);
- 
-                var jwtToken = validatedToken as JwtSecurityToken; 
-                _consoleWriter.PrintTokenValidationResult(jwtToken!);
+
+                var jwtToken = validatedToken as JwtSecurityToken;
+                tokenWrapper.JwtToken = jwtToken;
             }
             catch (SecurityTokenExpiredException ex)
             {
-                _consoleWriter.PrintMessage(Message.ErrorMessage(ex.Message));
+                tokenWrapper.ErrorMessage = ex.Message; 
             }
             catch (SecurityTokenException ex)
             {
-                _consoleWriter.PrintMessage(Message.ErrorMessage(ex.Message)); 
-
-            }
-
+                tokenWrapper.ErrorMessage = ex.Message; 
+            } 
+            return tokenWrapper;
 
         }
 
